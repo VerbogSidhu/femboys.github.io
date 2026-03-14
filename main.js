@@ -78,7 +78,7 @@ const gifs = [
   "https://cdn.discordapp.com/attachments/1416908088283365427/1436167891635404921/togif.gif?ex=69b6b654&is=69b564d4&hm=328f6542d9710aad6f79a337fa22e979029fdaff6834466de361e8bf6f88ceec&"
 ];
 
-import { ID, Query } from 'appwrite';
+import { ID, Query, Permission, Role } from 'appwrite';
 import { account, databases, storage, APPWRITE_DB_ID, APPWRITE_COL_ID, APPWRITE_BUCKET_ID } from './src/appwrite.js';
 
 // ==========================================
@@ -138,14 +138,29 @@ if (uploadBtn) {
     try {
       uploadBtn.disabled = true;
       uploadStatus.textContent = "Uploading to Storage...";
-      const uploadedFile = await storage.createFile(APPWRITE_BUCKET_ID, ID.unique(), file);
+      const uploadedFile = await storage.createFile(
+        APPWRITE_BUCKET_ID,
+        ID.unique(),
+        file,
+        [
+          Permission.read(Role.any()),
+          Permission.write(Role.user(currentUser.$id)),
+        ]
+      );
 
       const fileUrl = storage.getFileView(APPWRITE_BUCKET_ID, uploadedFile.$id);
 
       uploadStatus.textContent = "Saving to Database...";
-      await databases.createDocument(APPWRITE_DB_ID, APPWRITE_COL_ID, ID.unique(), {
-        url: fileUrl
-      });
+      await databases.createDocument(
+        APPWRITE_DB_ID,
+        APPWRITE_COL_ID,
+        ID.unique(),
+        { url: fileUrl },
+        [
+          Permission.read(Role.any()),
+          Permission.write(Role.user(currentUser.$id)),
+        ]
+      );
 
       uploadStatus.textContent = "Upload complete! Refreshing...";
       setTimeout(() => {
@@ -170,7 +185,7 @@ async function loadGallery() {
 
   galleryGrid.innerHTML = ''; // Clear grid
 
-  let imagesToRender = [];
+  let appwriteImages = [];
 
   // 1. Try fetching from Appwrite
   if (APPWRITE_DB_ID && APPWRITE_COL_ID) {
@@ -180,16 +195,14 @@ async function loadGallery() {
         APPWRITE_COL_ID,
         [Query.orderDesc('$createdAt')] // Newest first
       );
-      imagesToRender = response.documents.map(doc => doc.url);
+      appwriteImages = response.documents.map(doc => doc.url);
     } catch (err) {
-      console.error("Failed to fetch from Appwrite, falling back to local list:", err);
+      console.error("Failed to fetch from Appwrite:", err);
     }
   }
 
-  // 2. Fallback to hardcoded list if Appwrite fails or is empty
-  if (imagesToRender.length === 0) {
-    imagesToRender = gifs; // From the hardcoded array
-  }
+  // 2. Combine: Appwrite uploads first, then hardcoded images
+  const imagesToRender = [...appwriteImages, ...gifs];
 
   imagesToRender.forEach(url => {
     const item = document.createElement('div');
