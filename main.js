@@ -80,6 +80,26 @@ if (galleryGrid) {
 
     item.appendChild(img);
     galleryGrid.appendChild(item);
+
+    // Lightbox click event
+    img.addEventListener('click', () => {
+      const lightbox = document.getElementById('lightbox-modal');
+      const lightboxImg = document.getElementById('lightbox-img');
+      if (lightbox && lightboxImg) {
+        lightboxImg.src = url;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when open
+      }
+    });
+  });
+}
+
+// Close lightbox on click anywhere
+const lightbox = document.getElementById('lightbox-modal');
+if (lightbox) {
+  lightbox.addEventListener('click', () => {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = ''; // Restore scrolling
   });
 }
 
