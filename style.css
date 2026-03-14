@@ -344,3 +344,68 @@ h6 {
 .lightbox-modal.active img {
   transform: scale(1);
 }
+
+/* Admin Panel */
+.admin-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 16px;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 300px;
+}
+
+.admin-panel h3 {
+  font-size: 1.2rem;
+  color: var(--text-base);
+  margin-bottom: 5px;
+}
+
+.admin-panel p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.upload-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upload-controls input[type="file"] {
+  font-size: 0.9rem;
+  color: var(--text-base);
+}
+
+.upload-status {
+  font-size: 0.85rem;
+  color: var(--primary-glow);
+  min-height: 1.2em;
+}
+
+/* Footer & Login Link */
+.footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.login-link {
+  color: rgba(255, 255, 255, 0.3);
+  text-decoration: none;
+  transition: color var(--transition-smooth);
+}
+
+.login-link:hover {
+  color: var(--primary-glow);
+}

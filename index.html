@@ -97,6 +97,21 @@
     <img id="lightbox-img" src="" alt="Expanded View">
   </div>
 
+  <!-- Admin Upload Panel (Hidden by default) -->
+  <div id="admin-panel" class="admin-panel" style="display: none;">
+    <h3>Admin Dashboard</h3>
+    <p>Upload a new image to the gallery.</p>
+    <div class="upload-controls">
+      <input type="file" id="image-upload" accept="image/*,video/mp4" />
+      <button id="upload-btn" class="glass-btn primary">Upload</button>
+    </div>
+    <div id="upload-status" class="upload-status"></div>
+  </div>
+
+  <footer class="footer">
+    <p>© 2026 femboys.me | <a href="#" id="admin-login-link" class="login-link">Admin Login</a></p>
+  </footer>
+
   <script type="module" src="/main.js"></script>
 </body>
 

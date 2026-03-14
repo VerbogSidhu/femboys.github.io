@@ -78,16 +78,118 @@ const gifs = [
   "https://cdn.discordapp.com/attachments/1416908088283365427/1436167891635404921/togif.gif?ex=69b6b654&is=69b564d4&hm=328f6542d9710aad6f79a337fa22e979029fdaff6834466de361e8bf6f88ceec&"
 ];
 
-const galleryGrid = document.getElementById('gallery-grid');
-if (galleryGrid) {
-  gifs.forEach(url => {
+import { ID, Query } from 'appwrite';
+import { account, databases, storage, APPWRITE_DB_ID, APPWRITE_COL_ID, APPWRITE_BUCKET_ID } from './src/appwrite.js';
+
+// ==========================================
+// Admin Auth & Upload Logic
+// ==========================================
+const adminLoginLink = document.getElementById('admin-login-link');
+const adminPanel = document.getElementById('admin-panel');
+const uploadBtn = document.getElementById('upload-btn');
+const imageUpload = document.getElementById('image-upload');
+const uploadStatus = document.getElementById('upload-status');
+
+let currentUser = null;
+
+async function checkAuth() {
+  try {
+    currentUser = await account.get();
+    if (adminLoginLink) adminLoginLink.textContent = "Log out";
+    if (adminPanel) adminPanel.style.display = 'flex';
+  } catch (err) {
+    currentUser = null;
+    if (adminLoginLink) adminLoginLink.textContent = "Admin Login";
+    if (adminPanel) adminPanel.style.display = 'none';
+  }
+}
+
+if (adminLoginLink) {
+  adminLoginLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (currentUser) {
+      await account.deleteSession('current');
+      window.location.reload();
+    } else {
+      // Start Discord OAuth
+      account.createOAuth2Session('discord', window.location.href, window.location.href);
+    }
+  });
+}
+
+if (uploadBtn) {
+  uploadBtn.addEventListener('click', async () => {
+    const file = imageUpload.files[0];
+    if (!file) return;
+    if (!APPWRITE_BUCKET_ID || !APPWRITE_DB_ID || !APPWRITE_COL_ID) {
+      uploadStatus.textContent = "Missing Appwrite IDs in .env.local!";
+      return;
+    }
+
+    try {
+      uploadBtn.disabled = true;
+      uploadStatus.textContent = "Uploading to Storage...";
+      const uploadedFile = await storage.createFile(APPWRITE_BUCKET_ID, ID.unique(), file);
+
+      const fileUrl = storage.getFileView(APPWRITE_BUCKET_ID, uploadedFile.$id);
+
+      uploadStatus.textContent = "Saving to Database...";
+      await databases.createDocument(APPWRITE_DB_ID, APPWRITE_COL_ID, ID.unique(), {
+        url: fileUrl
+      });
+
+      uploadStatus.textContent = "Upload complete! Refreshing...";
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (err) {
+      uploadStatus.textContent = "Error: " + err.message;
+      console.error(err);
+      uploadBtn.disabled = false;
+    }
+  });
+}
+
+checkAuth();
+
+// ==========================================
+// Gallery Loading (Appwrite + Fallback)
+// ==========================================
+async function loadGallery() {
+  const galleryGrid = document.getElementById('gallery-grid');
+  if (!galleryGrid) return;
+
+  galleryGrid.innerHTML = ''; // Clear grid
+
+  let imagesToRender = [];
+
+  // 1. Try fetching from Appwrite
+  if (APPWRITE_DB_ID && APPWRITE_COL_ID) {
+    try {
+      const response = await databases.listDocuments(
+        APPWRITE_DB_ID,
+        APPWRITE_COL_ID,
+        [Query.orderDesc('$createdAt')] // Newest first
+      );
+      imagesToRender = response.documents.map(doc => doc.url);
+    } catch (err) {
+      console.error("Failed to fetch from Appwrite, falling back to local list:", err);
+    }
+  }
+
+  // 2. Fallback to hardcoded list if Appwrite fails or is empty
+  if (imagesToRender.length === 0) {
+    imagesToRender = gifs; // From the hardcoded array
+  }
+
+  imagesToRender.forEach(url => {
     const item = document.createElement('div');
     item.className = 'gallery-item';
 
     const img = document.createElement('img');
     img.src = url;
     img.alt = 'Aesthetic GIF';
-    img.loading = 'lazy'; // Lazy load for performance
+    img.loading = 'lazy';
 
     item.appendChild(img);
     galleryGrid.appendChild(item);
@@ -99,19 +201,22 @@ if (galleryGrid) {
       if (lightbox && lightboxImg) {
         lightboxImg.src = url;
         lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent scrolling when open
+        document.body.style.overflow = 'hidden';
       }
     });
   });
 }
+
+// Call on load
+loadGallery();
 
 // Close lightbox on click anywhere
 const lightbox = document.getElementById('lightbox-modal');
 if (lightbox) {
   lightbox.addEventListener('click', () => {
     lightbox.classList.remove('active');
-    document.body.style.overflow = ''; // Restore scrolling
+    document.body.style.overflow = '';
   });
 }
 
-console.log('femboys.me Loaded Successfully ✨');
+console.log('femboys.me Appwrite Logic Loaded Successfully ✨');
