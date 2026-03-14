@@ -1,1 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>femboys.me - Premium Aesthetic Experiences</title>
+  <meta name="description" content="A curated aesthetic experience for expression and identity." />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+  <!-- Background Elements -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <main class="container">
+    <section class="hero-section flex-center" style="min-height: 100vh; flex-direction: column; text-align: center;">
+
+      <div class="glass-panel animate-fade-in-up" style="max-width: 800px; width: 100%;">
+        <div style="margin-bottom: 2rem;">
+          <span class="badge delay-1 animate-fade-in-up"
+            style="display: inline-block; padding: 0.5rem 1rem; background: rgba(255,117,195,0.1); color: var(--accent-pink); border-radius: 100px; font-weight: 600; font-size: 0.875rem; border: 1px solid rgba(255,117,195,0.2); margin-bottom: 1.5rem;">
+            v1.0 Live Now
+          </span>
+          <h1 class="delay-2 animate-fade-in-up" style="font-size: 4.5rem; margin-bottom: 1rem;">
+            Welcome to <span class="text-gradient">femboys.me</span>
+          </h1>
+          <p class="delay-3 animate-fade-in-up"
+            style="font-size: 1.25rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.6;">
+            A curated digital space dedicated to aesthetics, expression, and absolute flawless style. Redefine your
+            digital identity.
+          </p>
+        </div>
+
+        <div class="actions delay-4 animate-fade-in-up"
+          style="display: flex; gap: 1rem; justify-content: center; margin-top: 3rem;">
+          <a href="#explore" class="btn btn-primary">Explore Gallery</a>
+          <a href="https://github.com/femboys/femboys.github.io" target="_blank" class="btn btn-secondary">Source
+            Code</a>
+        </div>
+
+        <div class="features"
+          style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 4rem; text-align: left;">
+          <div class="feature-card delay-4 animate-fade-in-up"
+            style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid var(--glass-border);">
+            <h3 style="color: var(--accent-pink); margin-bottom: 0.5rem; font-size: 1.25rem;">✨ Aesthetic</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">Curated visuals and stunning
+              glassmorphism design language.</p>
+          </div>
+          <div class="feature-card delay-4 animate-fade-in-up"
+            style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid var(--glass-border);">
+            <h3 style="color: var(--accent-purple); margin-bottom: 0.5rem; font-size: 1.25rem;">⚡ Fast</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">Built on Vite for lightning
+              fast loading times and minimal overhead.</p>
+          </div>
+          <div class="feature-card delay-4 animate-fade-in-up"
+            style="padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid var(--glass-border);">
+            <h3 style="color: #ffffff; margin-bottom: 0.5rem; font-size: 1.25rem;">🌐 Open</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">Fully open-source and hosted
+              gracefully on GitHub Pages.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="explore" class="gallery-section">
+      <h2 class="section-title text-gradient delay-1 animate-fade-in-up">The Gallery</h2>
+      <div id="gallery-grid" class="gallery-grid delay-2 animate-fade-in-up">
+        <!-- Images will be injected here via main.js -->
+      </div>
+    </section>
+  </main>
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
