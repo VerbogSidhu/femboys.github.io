@@ -43,8 +43,19 @@ cards.forEach(card => {
   });
 });
 
-// GIF Gallery Injection
+// ==========================================
+// 🖼️ HOW TO ADD NEW IMAGES TO THE GALLERY
+// ==========================================
+// 1. Upload your image somewhere (like Discord)
+// 2. Right click -> "Copy Image Link"
+// 3. Paste the link into the `images` list below.
+//    - Make sure it's wrapped in quotes: "link_here"
+//    - Make sure there's a comma `,` at the end of each line (except the last one).
+// ==========================================
 const gifs = [
+  "https://cdn.discordapp.com/attachments/1449890084659658772/1482510537907769344/brave_iESlNUstT6.png?ex=69b73707&is=69b5e587&hm=bb068853832bfcb85c1253f56a98fe616c3e72079380a7c1120fa241fd7e021a&",
+  "https://cdn.discordapp.com/attachments/1449890084659658772/1482510774675968214/brave_qXQOLW6u3F.png?ex=69b73740&is=69b5e5c0&hm=2a5fa1da141a731b50cb4625e213d439b7f605d49e5824f801e1512fc347018e&",
+  "https://cdn.discordapp.com/attachments/1416908088283365427/1447048182436593707/togif.gif?ex=69b6be63&is=69b56ce3&hm=cf1e443d2b61903ce8e6ef572b0e46528190363e40ba5101a0c679740cd71892&",
   "https://cdn.discordapp.com/attachments/1449890084659658772/1482207194656280717/togif.gif?ex=69b6c545&is=69b573c5&hm=c7ea7325af745ee9ec212480f7ce79298dce611394da5ad7b772672bbcc8e70b&",
   "https://cdn.discordapp.com/attachments/1449890084659658772/1482104592136143068/togif.gif?ex=69b70e76&is=69b5bcf6&hm=e712178619f37d1424d52d7b64789940a8043e286a5bb3bc35455b74b1e1fea0&",
   "https://cdn.discordapp.com/attachments/1449890084659658772/1481484252636905623/togif.gif?ex=69b6c6fa&is=69b5757a&hm=987994c40e3a7aac75f6cb14461da30e4c591ced59abb064330b4419404f90d3&",
