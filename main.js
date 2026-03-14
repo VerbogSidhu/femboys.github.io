@@ -95,8 +95,17 @@ let currentUser = null;
 async function checkAuth() {
   try {
     currentUser = await account.get();
-    if (adminLoginLink) adminLoginLink.textContent = "Log out";
-    if (adminPanel) adminPanel.style.display = 'flex';
+
+    // Check if logged in user is the admin (Millx)
+    if (currentUser.email === 'milkyyeeter69@gmail.com') {
+      if (adminLoginLink) adminLoginLink.textContent = "Log out";
+      if (adminPanel) adminPanel.style.display = 'flex';
+    } else {
+      // Normal user (hide panel but give option to logout)
+      if (adminLoginLink) adminLoginLink.textContent = "Log out";
+      if (adminPanel) adminPanel.style.display = 'none';
+      if (uploadStatus) uploadStatus.textContent = "Access Denied. You are not the admin.";
+    }
   } catch (err) {
     currentUser = null;
     if (adminLoginLink) adminLoginLink.textContent = "Admin Login";
