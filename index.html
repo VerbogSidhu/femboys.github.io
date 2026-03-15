@@ -92,18 +92,18 @@
     </section>
   </main>
 
-  <!-- Lightbox Modal -->
+  <!-- Lightbox Modal (supports images + videos) -->
   <div id="lightbox-modal" class="lightbox-modal">
-    <img id="lightbox-img" src="" alt="Expanded View">
+    <div id="lightbox-media" class="lightbox-media-container"></div>
   </div>
 
   <!-- Admin Upload Panel (Hidden by default) -->
   <div id="admin-panel" class="admin-panel" style="display: none;">
     <h3>Admin Dashboard</h3>
-    <p>Upload a new image to the gallery.</p>
+    <p>Upload a new image or video to the gallery.</p>
     <div class="upload-controls">
-      <input type="file" id="image-upload" accept="image/*,video/mp4" />
-      <button id="upload-btn" class="glass-btn primary">Upload</button>
+      <input type="file" id="image-upload" accept="image/*,video/mp4,video/webm" />
+      <button id="upload-btn" class="btn btn-primary">Upload</button>
     </div>
     <div id="upload-status" class="upload-status"></div>
   </div>

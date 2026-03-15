@@ -289,18 +289,18 @@ h6 {
   z-index: 10;
 }
 
-.gallery-item img {
+.gallery-item img,
+.gallery-item video {
   width: 100%;
   height: auto;
-  /* Allow image to define its own height */
   display: block;
-  /* Remove bottom space on images */
   object-fit: contain;
-  /* OR cover, depending on preference. auto height preserves aspect ratio best. */
   transition: transform var(--transition-smooth), filter var(--transition-smooth);
+  cursor: pointer;
 }
 
-.gallery-item:hover img {
+.gallery-item:hover img,
+.gallery-item:hover video {
   transform: scale(1.05);
   filter: brightness(1.1);
   cursor: zoom-in;
@@ -331,7 +331,15 @@ h6 {
   cursor: zoom-out;
 }
 
-.lightbox-modal img {
+.lightbox-media-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.lightbox-content {
   max-width: 90vw;
   max-height: 90vh;
   object-fit: contain;
@@ -339,9 +347,10 @@ h6 {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), var(--shadow-glow);
   transform: scale(0.9);
   transition: transform var(--transition-smooth);
+  cursor: default;
 }
 
-.lightbox-modal.active img {
+.lightbox-modal.active .lightbox-content {
   transform: scale(1);
 }
 
@@ -361,18 +370,18 @@ h6 {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  max-width: 300px;
+  max-width: 320px;
 }
 
 .admin-panel h3 {
   font-size: 1.2rem;
-  color: var(--text-base);
+  color: var(--text-primary);
   margin-bottom: 5px;
 }
 
 .admin-panel p {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .upload-controls {
@@ -383,12 +392,17 @@ h6 {
 
 .upload-controls input[type="file"] {
   font-size: 0.9rem;
-  color: var(--text-base);
+  color: var(--text-primary);
+}
+
+.upload-controls .btn {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
 }
 
 .upload-status {
   font-size: 0.85rem;
-  color: var(--primary-glow);
+  color: var(--accent-pink);
   min-height: 1.2em;
 }
 
@@ -396,7 +410,7 @@ h6 {
 .footer {
   text-align: center;
   padding: 40px 20px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
 
@@ -407,5 +421,5 @@ h6 {
 }
 
 .login-link:hover {
-  color: var(--primary-glow);
+  color: var(--accent-pink);
 }

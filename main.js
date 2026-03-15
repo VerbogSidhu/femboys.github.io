@@ -1,58 +1,20 @@
-// Vanilla JS for Interactive Elements
+// ==============================================
+// Imports (always at the top of the file)
+// ==============================================
+import { ID, Query, Permission, Role } from 'appwrite';
+import {
+  account, databases, storage,
+  APPWRITE_DB_ID, APPWRITE_COL_ID, APPWRITE_BUCKET_ID,
+  APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID
+} from './src/appwrite.js';
 
-// Add subtle parallax effect to orbs on mousemove
-document.addEventListener('mousemove', (e) => {
-  const orbs = document.querySelectorAll('.orb');
-  const x = e.clientX / window.innerWidth;
-  const y = e.clientY / window.innerHeight;
+// ==============================================
+// Constants
+// ==============================================
+const ADMIN_EMAIL = 'milkyyeeter69@gmail.com';
 
-  orbs.forEach((orb, index) => {
-    // Reverse direction based on index to make them move nicely
-    const factor = index % 2 === 0 ? 1 : -1;
-    const moveX = (x * 40 - 20) * factor;
-    const moveY = (y * 40 - 20) * factor;
-
-    // We keep the original animation floating effect intact by using CSS transform
-    // combined with a smooth transition in JS overriding the transform slightly
-    // but a cleaner approach is setting custom properties
-    orb.style.transform = `translate(${moveX}px, ${moveY}px)`;
-  });
-});
-
-// Add hover 3D effect to cards
-const cards = document.querySelectorAll('.feature-card');
-cards.forEach(card => {
-  card.addEventListener('mousemove', (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left; // x position within the element.
-    const y = e.clientY - rect.top;  // y position within the element.
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * -5;
-    const rotateY = ((x - centerX) / centerX) * 5;
-
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
-    card.style.transition = 'transform 0.1s ease';
-  });
-
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
-    card.style.transition = 'transform 0.5s ease';
-  });
-});
-
-// ==========================================
-// 🖼️ HOW TO ADD NEW IMAGES TO THE GALLERY
-// ==========================================
-// 1. Upload your image somewhere (like Discord)
-// 2. Right click -> "Copy Image Link"
-// 3. Paste the link into the `images` list below.
-//    - Make sure it's wrapped in quotes: "link_here"
-//    - Make sure there's a comma `,` at the end of each line (except the last one).
-// ==========================================
-const gifs = [
+// Static gallery images (fallback + legacy content)
+const STATIC_IMAGES = [
   "https://cdn.discordapp.com/attachments/1449890084659658772/1482510537907769344/brave_iESlNUstT6.png?ex=69b73707&is=69b5e587&hm=bb068853832bfcb85c1253f56a98fe616c3e72079380a7c1120fa241fd7e021a&",
   "https://cdn.discordapp.com/attachments/1449890084659658772/1482510774675968214/brave_qXQOLW6u3F.png?ex=69b73740&is=69b5e5c0&hm=2a5fa1da141a731b50cb4625e213d439b7f605d49e5824f801e1512fc347018e&",
   "https://cdn.discordapp.com/attachments/1416908088283365427/1447048182436593707/togif.gif?ex=69b6be63&is=69b56ce3&hm=cf1e443d2b61903ce8e6ef572b0e46528190363e40ba5101a0c679740cd71892&",
@@ -78,37 +40,79 @@ const gifs = [
   "https://cdn.discordapp.com/attachments/1416908088283365427/1436167891635404921/togif.gif?ex=69b6b654&is=69b564d4&hm=328f6542d9710aad6f79a337fa22e979029fdaff6834466de361e8bf6f88ceec&"
 ];
 
-import { ID, Query, Permission, Role } from 'appwrite';
-import { account, databases, storage, APPWRITE_DB_ID, APPWRITE_COL_ID, APPWRITE_BUCKET_ID, APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID } from './src/appwrite.js';
-
-// ==========================================
-// Admin Auth & Upload Logic
-// ==========================================
+// ==============================================
+// DOM References
+// ==============================================
 const adminLoginLink = document.getElementById('admin-login-link');
 const adminPanel = document.getElementById('admin-panel');
 const uploadBtn = document.getElementById('upload-btn');
 const imageUpload = document.getElementById('image-upload');
 const uploadStatus = document.getElementById('upload-status');
+const galleryGrid = document.getElementById('gallery-grid');
+const lightboxModal = document.getElementById('lightbox-modal');
+const lightboxMedia = document.getElementById('lightbox-media');
 
+// ==============================================
+// Utility: Detect if a URL points to a video
+// ==============================================
+function isVideoUrl(url) {
+  // Known video extensions
+  if (/\.(mp4|webm|mov|avi)(\?|$)/i.test(url)) return true;
+  // Appwrite /view? URLs that are NOT images
+  if (url.includes('/view?') && !/\.(gif|png|jpg|jpeg|webp)(\?|$)/i.test(url)) return true;
+  return false;
+}
+
+// ==============================================
+// Parallax Orbs
+// ==============================================
+document.addEventListener('mousemove', (e) => {
+  const orbs = document.querySelectorAll('.orb');
+  const x = e.clientX / window.innerWidth;
+  const y = e.clientY / window.innerHeight;
+
+  orbs.forEach((orb, i) => {
+    const factor = i % 2 === 0 ? 1 : -1;
+    orb.style.transform = `translate(${(x * 40 - 20) * factor}px, ${(y * 40 - 20) * factor}px)`;
+  });
+});
+
+// ==============================================
+// 3D Card Hover Effect
+// ==============================================
+document.querySelectorAll('.feature-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const rotateX = ((e.clientY - rect.top - rect.height / 2) / (rect.height / 2)) * -5;
+    const rotateY = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 5;
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+    card.style.transition = 'transform 0.1s ease';
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+    card.style.transition = 'transform 0.5s ease';
+  });
+});
+
+// ==============================================
+// Authentication
+// ==============================================
 let currentUser = null;
 
 async function checkAuth() {
   try {
     currentUser = await account.get();
+    if (adminLoginLink) adminLoginLink.textContent = 'Log out';
 
-    // Check if logged in user is the admin (Millx)
-    if (currentUser.email === 'milkyyeeter69@gmail.com') {
-      if (adminLoginLink) adminLoginLink.textContent = "Log out";
+    if (currentUser.email === ADMIN_EMAIL) {
       if (adminPanel) adminPanel.style.display = 'flex';
     } else {
-      // Normal user (hide panel but give option to logout)
-      if (adminLoginLink) adminLoginLink.textContent = "Log out";
       if (adminPanel) adminPanel.style.display = 'none';
-      if (uploadStatus) uploadStatus.textContent = "Access Denied. You are not the admin.";
     }
-  } catch (err) {
+  } catch {
     currentUser = null;
-    if (adminLoginLink) adminLoginLink.textContent = "Admin Login";
+    if (adminLoginLink) adminLoginLink.textContent = 'Admin Login';
     if (adminPanel) adminPanel.style.display = 'none';
   }
 }
@@ -120,139 +124,160 @@ if (adminLoginLink) {
       await account.deleteSession('current');
       window.location.reload();
     } else {
-      // Start Discord OAuth
       account.createOAuth2Session('discord', window.location.href, window.location.href);
     }
   });
 }
 
+// ==============================================
+// Upload Handler
+// ==============================================
 if (uploadBtn) {
   uploadBtn.addEventListener('click', async () => {
-    const file = imageUpload.files[0];
-    if (!file) return;
-    if (!APPWRITE_BUCKET_ID || !APPWRITE_DB_ID || !APPWRITE_COL_ID) {
-      uploadStatus.textContent = "Missing Appwrite IDs in .env.local!";
+    const file = imageUpload?.files[0];
+    if (!file) {
+      uploadStatus.textContent = 'Please select a file first.';
       return;
     }
 
     try {
       uploadBtn.disabled = true;
-      uploadStatus.textContent = "Uploading to Storage...";
-      const uploadedFile = await storage.createFile(
-        APPWRITE_BUCKET_ID,
-        ID.unique(),
-        file,
-        [
-          Permission.read(Role.any()),
-          Permission.write(Role.user(currentUser.$id)),
-        ]
+      uploadStatus.textContent = 'Uploading to Storage…';
+
+      const uploaded = await storage.createFile(
+        APPWRITE_BUCKET_ID, ID.unique(), file,
+        [Permission.read(Role.any()), Permission.write(Role.user(currentUser.$id))]
       );
 
-      // Build the URL manually to guarantee it's a plain string
-      const fileUrl = `${APPWRITE_ENDPOINT}/storage/buckets/${APPWRITE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${APPWRITE_PROJECT_ID}`;
+      const fileUrl = `${APPWRITE_ENDPOINT}/storage/buckets/${APPWRITE_BUCKET_ID}/files/${uploaded.$id}/view?project=${APPWRITE_PROJECT_ID}`;
 
-      uploadStatus.textContent = "Saving to Database...";
+      uploadStatus.textContent = 'Saving to Database…';
       await databases.createDocument(
-        APPWRITE_DB_ID,
-        APPWRITE_COL_ID,
-        ID.unique(),
+        APPWRITE_DB_ID, APPWRITE_COL_ID, ID.unique(),
         { url: fileUrl },
-        [
-          Permission.read(Role.any()),
-          Permission.write(Role.user(currentUser.$id)),
-        ]
+        [Permission.read(Role.any()), Permission.write(Role.user(currentUser.$id))]
       );
 
-      uploadStatus.textContent = "Upload complete! Refreshing...";
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      uploadStatus.textContent = '✅ Upload complete! Refreshing…';
+      imageUpload.value = '';
+      setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
-      uploadStatus.textContent = "Error: " + err.message;
-      console.error(err);
+      uploadStatus.textContent = `❌ Error: ${err.message}`;
+      console.error('[Upload Error]', err);
       uploadBtn.disabled = false;
     }
   });
 }
 
-checkAuth();
+// ==============================================
+// Lightbox (supports images AND videos)
+// ==============================================
+function openLightbox(url) {
+  if (!lightboxModal || !lightboxMedia) return;
 
-// ==========================================
-// Gallery Loading (Appwrite + Fallback)
-// ==========================================
+  // Clear previous content
+  lightboxMedia.innerHTML = '';
+
+  if (isVideoUrl(url)) {
+    const video = document.createElement('video');
+    video.src = url;
+    video.controls = true;
+    video.autoplay = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.className = 'lightbox-content';
+    lightboxMedia.appendChild(video);
+  } else {
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Expanded View';
+    img.className = 'lightbox-content';
+    lightboxMedia.appendChild(img);
+  }
+
+  lightboxModal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  if (!lightboxModal || !lightboxMedia) return;
+
+  lightboxModal.classList.remove('active');
+  document.body.style.overflow = '';
+
+  // Stop any playing video
+  const video = lightboxMedia.querySelector('video');
+  if (video) video.pause();
+}
+
+if (lightboxModal) {
+  lightboxModal.addEventListener('click', (e) => {
+    // Only close if clicking the backdrop, not the media itself
+    if (e.target === lightboxModal || e.target === lightboxMedia) {
+      closeLightbox();
+    }
+  });
+}
+
+// ==============================================
+// Gallery Renderer
+// ==============================================
+function renderGalleryItem(url) {
+  const item = document.createElement('div');
+  item.className = 'gallery-item';
+
+  if (isVideoUrl(url)) {
+    const video = document.createElement('video');
+    video.src = url;
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    item.appendChild(video);
+  } else {
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Gallery Image';
+    img.loading = 'lazy';
+    item.appendChild(img);
+  }
+
+  // Click to open lightbox
+  item.addEventListener('click', () => openLightbox(url));
+  return item;
+}
+
 async function loadGallery() {
-  const galleryGrid = document.getElementById('gallery-grid');
   if (!galleryGrid) return;
-
-  galleryGrid.innerHTML = ''; // Clear grid
+  galleryGrid.innerHTML = '';
 
   let appwriteImages = [];
 
-  // 1. Try fetching from Appwrite
   if (APPWRITE_DB_ID && APPWRITE_COL_ID) {
     try {
-      const response = await databases.listDocuments(
-        APPWRITE_DB_ID,
-        APPWRITE_COL_ID,
-        [Query.orderDesc('$createdAt')] // Newest first
+      const res = await databases.listDocuments(
+        APPWRITE_DB_ID, APPWRITE_COL_ID,
+        [Query.orderDesc('$createdAt')]
       );
-      appwriteImages = response.documents.map(doc => doc.url);
+      appwriteImages = res.documents.map(doc => doc.url);
     } catch (err) {
-      console.error("Failed to fetch from Appwrite:", err);
+      console.warn('[Gallery] Appwrite fetch failed, using static list:', err.message);
     }
   }
 
-  // 2. Combine: Appwrite uploads first, then hardcoded images
-  const imagesToRender = [...appwriteImages, ...gifs];
+  // Combine: Appwrite uploads first, then hardcoded images
+  const allMedia = [...appwriteImages, ...STATIC_IMAGES];
 
-  imagesToRender.forEach(url => {
-    const item = document.createElement('div');
-    item.className = 'gallery-item';
-
-    // Detect if it's a video (Appwrite uploads or video extensions)
-    const isVideo = url.match(/\.(mp4|webm|mov)($|\?)/i) || (url.includes('/view?') && !url.match(/\.(gif|png|jpg|jpeg|webp)($|\?)/i));
-    let media;
-
-    if (isVideo) {
-      media = document.createElement('video');
-      media.src = url;
-      media.autoplay = true;
-      media.loop = true;
-      media.muted = true;
-      media.playsInline = true;
-    } else {
-      media = document.createElement('img');
-      media.src = url;
-      media.alt = 'Aesthetic GIF';
-      media.loading = 'lazy';
-    }
-
-    item.appendChild(media);
-    galleryGrid.appendChild(item);
-
-    // Lightbox click event
-    media.addEventListener('click', () => {
-      const lightbox = document.getElementById('lightbox-modal');
-      const lightboxImg = document.getElementById('lightbox-img');
-      if (lightbox && lightboxImg) {
-        lightboxImg.src = url;
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }
-    });
+  allMedia.forEach(url => {
+    galleryGrid.appendChild(renderGalleryItem(url));
   });
 }
 
-// Call on load
+// ==============================================
+// Initialise
+// ==============================================
+checkAuth();
 loadGallery();
 
-// Close lightbox on click anywhere
-const lightbox = document.getElementById('lightbox-modal');
-if (lightbox) {
-  lightbox.addEventListener('click', () => {
-    lightbox.classList.remove('active');
-    document.body.style.overflow = '';
-  });
-}
-
-console.log('femboys.me Appwrite Logic Loaded Successfully ✨');
+console.log('femboys.me loaded ✨');
