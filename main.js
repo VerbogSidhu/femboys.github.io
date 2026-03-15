@@ -279,6 +279,19 @@ function renderGalleryItem(url) {
     img.src = url;
     img.alt = 'Gallery Image';
     img.loading = 'lazy';
+
+    // If image fails to load (e.g. it's actually a video), swap to video tag
+    img.onerror = () => {
+      const video = document.createElement('video');
+      video.src = url;
+      video.autoplay = true;
+      video.loop = true;
+      video.muted = true;
+      video.playsInline = true;
+      video.preload = 'metadata';
+      item.replaceChild(video, img);
+    };
+
     item.appendChild(img);
   }
 
