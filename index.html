@@ -100,10 +100,15 @@
   <!-- Admin Upload Panel (Hidden by default) -->
   <div id="admin-panel" class="admin-panel" style="display: none;">
     <h3>Admin Dashboard</h3>
-    <p>Upload a new image or video to the gallery.</p>
+    <p>Add a new image or video to the gallery.</p>
     <div class="upload-controls">
       <input type="file" id="image-upload" accept="image/*,video/mp4,video/webm" />
-      <button id="upload-btn" class="btn btn-primary">Upload</button>
+      <button id="upload-btn" class="btn btn-primary">Upload File</button>
+    </div>
+    <div class="upload-divider">or</div>
+    <div class="upload-controls">
+      <input type="url" id="url-input" placeholder="Paste image/video URL…" />
+      <button id="url-upload-btn" class="btn btn-primary">Add URL</button>
     </div>
     <div id="upload-status" class="upload-status"></div>
   </div>

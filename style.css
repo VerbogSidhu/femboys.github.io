@@ -400,6 +400,34 @@ h6 {
   font-size: 0.9rem;
 }
 
+.upload-controls input[type="url"] {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-primary);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.upload-controls input[type="url"]:focus {
+  border-color: var(--accent-pink);
+}
+
+.upload-controls input[type="url"]::placeholder {
+  color: var(--text-secondary);
+}
+
+.upload-divider {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
 .upload-status {
   font-size: 0.85rem;
   color: var(--accent-pink);

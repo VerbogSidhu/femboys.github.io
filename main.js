@@ -47,6 +47,8 @@ const adminLoginLink = document.getElementById('admin-login-link');
 const adminPanel = document.getElementById('admin-panel');
 const uploadBtn = document.getElementById('upload-btn');
 const imageUpload = document.getElementById('image-upload');
+const urlInput = document.getElementById('url-input');
+const urlUploadBtn = document.getElementById('url-upload-btn');
 const uploadStatus = document.getElementById('upload-status');
 const galleryGrid = document.getElementById('gallery-grid');
 const lightboxModal = document.getElementById('lightbox-modal');
@@ -170,6 +172,38 @@ if (uploadBtn) {
       uploadStatus.textContent = `❌ Error: ${err.message}`;
       console.error('[Upload Error]', err);
       uploadBtn.disabled = false;
+    }
+  });
+}
+
+// ==============================================
+// URL Upload Handler
+// ==============================================
+if (urlUploadBtn) {
+  urlUploadBtn.addEventListener('click', async () => {
+    const url = urlInput?.value.trim();
+    if (!url) {
+      uploadStatus.textContent = 'Please paste a URL first.';
+      return;
+    }
+
+    try {
+      urlUploadBtn.disabled = true;
+      uploadStatus.textContent = 'Saving to Database…';
+
+      await databases.createDocument(
+        APPWRITE_DB_ID, APPWRITE_COL_ID, ID.unique(),
+        { url },
+        [Permission.read(Role.any()), Permission.write(Role.user(currentUser.$id))]
+      );
+
+      uploadStatus.textContent = '✅ Added! Refreshing…';
+      urlInput.value = '';
+      setTimeout(() => window.location.reload(), 1200);
+    } catch (err) {
+      uploadStatus.textContent = `❌ Error: ${err.message}`;
+      console.error('[URL Upload Error]', err);
+      urlUploadBtn.disabled = false;
     }
   });
 }
