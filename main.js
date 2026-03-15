@@ -79,7 +79,7 @@ const gifs = [
 ];
 
 import { ID, Query, Permission, Role } from 'appwrite';
-import { account, databases, storage, APPWRITE_DB_ID, APPWRITE_COL_ID, APPWRITE_BUCKET_ID } from './src/appwrite.js';
+import { account, databases, storage, APPWRITE_DB_ID, APPWRITE_COL_ID, APPWRITE_BUCKET_ID, APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID } from './src/appwrite.js';
 
 // ==========================================
 // Admin Auth & Upload Logic
@@ -148,7 +148,8 @@ if (uploadBtn) {
         ]
       );
 
-      const fileUrl = storage.getFileView(APPWRITE_BUCKET_ID, uploadedFile.$id);
+      // Build the URL manually to guarantee it's a plain string
+      const fileUrl = `${APPWRITE_ENDPOINT}/storage/buckets/${APPWRITE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${APPWRITE_PROJECT_ID}`;
 
       uploadStatus.textContent = "Saving to Database...";
       await databases.createDocument(
@@ -208,16 +209,29 @@ async function loadGallery() {
     const item = document.createElement('div');
     item.className = 'gallery-item';
 
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = 'Aesthetic GIF';
-    img.loading = 'lazy';
+    // Detect if it's a video (Appwrite uploads or video extensions)
+    const isVideo = url.match(/\.(mp4|webm|mov)($|\?)/i) || (url.includes('/view?') && !url.match(/\.(gif|png|jpg|jpeg|webp)($|\?)/i));
+    let media;
 
-    item.appendChild(img);
+    if (isVideo) {
+      media = document.createElement('video');
+      media.src = url;
+      media.autoplay = true;
+      media.loop = true;
+      media.muted = true;
+      media.playsInline = true;
+    } else {
+      media = document.createElement('img');
+      media.src = url;
+      media.alt = 'Aesthetic GIF';
+      media.loading = 'lazy';
+    }
+
+    item.appendChild(media);
     galleryGrid.appendChild(item);
 
     // Lightbox click event
-    img.addEventListener('click', () => {
+    media.addEventListener('click', () => {
       const lightbox = document.getElementById('lightbox-modal');
       const lightboxImg = document.getElementById('lightbox-img');
       if (lightbox && lightboxImg) {
