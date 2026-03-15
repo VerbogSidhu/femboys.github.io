@@ -56,10 +56,14 @@ const lightboxMedia = document.getElementById('lightbox-media');
 // Utility: Detect if a URL points to a video
 // ==============================================
 function isVideoUrl(url) {
-  // Known video extensions
-  if (/\.(mp4|webm|mov|avi)(\?|$)/i.test(url)) return true;
-  // Appwrite /view? URLs that are NOT images
-  if (url.includes('/view?') && !/\.(gif|png|jpg|jpeg|webp)(\?|$)/i.test(url)) return true;
+  // Check actual video file extensions
+  if (/\.(mp4|webm|mov|avi)(\?|#|$)/i.test(url)) return true;
+  // Check the ext= query param we attach during upload
+  const extMatch = url.match(/[?&]ext=(\w+)/i);
+  if (extMatch) {
+    const ext = extMatch[1].toLowerCase();
+    return ['mp4', 'webm', 'mov', 'avi'].includes(ext);
+  }
   return false;
 }
 
@@ -149,7 +153,8 @@ if (uploadBtn) {
         [Permission.read(Role.any()), Permission.write(Role.user(currentUser.$id))]
       );
 
-      const fileUrl = `${APPWRITE_ENDPOINT}/storage/buckets/${APPWRITE_BUCKET_ID}/files/${uploaded.$id}/view?project=${APPWRITE_PROJECT_ID}`;
+      const fileExt = file.name.split('.').pop().toLowerCase();
+      const fileUrl = `${APPWRITE_ENDPOINT}/storage/buckets/${APPWRITE_BUCKET_ID}/files/${uploaded.$id}/view?project=${APPWRITE_PROJECT_ID}&ext=${fileExt}`;
 
       uploadStatus.textContent = 'Saving to Database…';
       await databases.createDocument(
